@@ -10,7 +10,6 @@ func _ready() -> void:
 	super()
 	position = target.position
 	
-
 func _process(delta: float) -> void:
 	if !current:
 		return
@@ -24,7 +23,6 @@ func _process(delta: float) -> void:
 	#boundary checks
 	#left
 	var diff_between_left_edges = (tpos.x - target.WIDTH / 2.0) - (cpos.x - box_width / 2.0)
-	print("left_diff: ", diff_between_left_edges)
 	if diff_between_left_edges < 0:
 		global_position.x += diff_between_left_edges
 	#right
