@@ -1,9 +1,9 @@
 class_name LerpTargetFocus
 extends CameraControllerBase
 
-@export var lead_speed:float = 55.0
-@export var catchup_delay_duration:float = 1.0
-@export var catchup_speed:float = 0.05
+@export var lead_speed:float = 10.0
+@export var catchup_delay_duration:float = 2.0
+@export var catchup_speed:float = 0.07
 @export var leash_distance:float = 5.0
 
 func _ready() -> void:
@@ -22,24 +22,16 @@ func _process(delta: float) -> void:
 	var tpos = Vector3(target.global_position.x, 0, target.global_position.z)	#store target position without y-axis
 	
 	var distance = cpos.distance_to(tpos)						#calculate distance from target on xz-plane
-	var temp_direction = (tpos - cpos).normalized()					#calculate direction on xz-plane, note: integer -> need float
-	var direction = Vector3(float(temp_direction.x), float(temp_direction.y), float(temp_direction.z))		#transfer new vector of floats
-	
+	var direction = (tpos - cpos).normalized()					#calculate direction on xz-plane, note: integer -> need float
 	
 	if target.velocity:
-		#leash constraints or lerp to target		
-		if distance > leash_distance:			#if pulling leash, move camera toward target within leash bounds
+		#leash constraints or lerp to target
+		var pull = snapped(distance - leash_distance, .0001)		#round float difference
+		if pull > 0:			#if pulling leash, move camera toward target within leash bounds
 			global_position += direction * (distance - leash_distance)
 	else:
-		global_position = lerp(cpos, tpos, catchup_speed)
+			global_position = lerp(cpos, tpos, catchup_speed)
 	
-
-	##leash constraints or lerp to target
-	#if distance > leash_distance:			#if pulling leash, move camera toward target within leash bounds
-		#global_position += direction * (distance - leash_distance)
-	#else:
-		#global_position = lerp(cpos, tpos, speed_mode)			#if not pulling, return to target using lerp smoothing
-		#
 	super(delta)
 	
 func _physics_process(delta: float) -> void:
