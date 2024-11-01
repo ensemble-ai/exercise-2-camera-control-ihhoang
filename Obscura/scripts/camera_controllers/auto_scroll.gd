@@ -1,37 +1,31 @@
 class_name AutoScroll
 extends CameraControllerBase
 
-
-#@export var box_width:float = 10.0
-#@export var box_height:float = 10.0
-
 @export var top_left:Vector2 = Vector2(-13, -7)
 @export var bottom_right:Vector2 = Vector2(13, 7)
 @export var autoscroll_speed:Vector2 = Vector2(10, 0)
 
 func _ready() -> void:
 	super()
-	position = target.position
+	position = target.position			#initialize to target position
 
 func _process(delta: float) -> void:
-	if !current:
+	if !current:						#if not current camera, return
 		return
 	
-	if draw_camera_logic:
+	if draw_camera_logic:				#visualize camera bounds
 		draw_logic()
 	
-	var scroll_speed_X = autoscroll_speed[0]
-	var scroll_speed_Z = autoscroll_speed[1]
-	global_position.x += scroll_speed_X * delta
-	global_position.z += scroll_speed_Z * delta
+	var scroll = Vector3(autoscroll_speed[0], 0, autoscroll_speed[1]) 		#change scroll speed to vector3
+	global_position += scroll * delta				#change camera based on auto scroll
 		
-	#boundary checks
+	#boundary checks based on given top_left and bottom_right variables
 	var left_bound = global_position.x + top_left.x
 	var right_bound = global_position.x + bottom_right.x
 	var top_bound = global_position.z + top_left.y
 	var bottom_bound = global_position.z + bottom_right.y
 	
-		
+	#if goes beyond bound, set position to bound
 	if target.global_position.x < left_bound:
 		target.global_position.x = left_bound
 	if target.global_position.x > right_bound:
@@ -53,6 +47,7 @@ func draw_logic() -> void:
 	mesh_instance.mesh = immediate_mesh
 	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	
+	#set boundary bounds
 	var left = top_left.x
 	var right = bottom_right.x
 	var top = top_left.y

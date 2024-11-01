@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=4 uid="uid://88du8yjefx8j"]
+[gd_scene load_steps=14 format=4 uid="uid://88du8yjefx8j"]
 
 [ext_resource type="PackedScene" uid="uid://dtm13sp1jsrwi" path="res://scenes/vessel.tscn" id="1_oaql3"]
 [ext_resource type="Script" path="res://scripts/camera_selector.gd" id="2_qffo5"]
@@ -9,6 +9,7 @@
 [ext_resource type="AudioStream" uid="uid://6tbtl0jk0dlo" path="res://assets/audio/VGMA Challenge - July 16th.wav" id="5_o8tm3"]
 [ext_resource type="Script" path="res://scripts/camera_controllers/auto_scroll.gd" id="6_nmejt"]
 [ext_resource type="Script" path="res://scripts/camera_controllers/position_lerp.gd" id="7_32y67"]
+[ext_resource type="Script" path="res://scripts/camera_controllers/lerp_target_focus.gd" id="8_de8i4"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_260fy"]
 _surfaces = [{
@@ -44,7 +45,7 @@ terrain_manager = NodePath("../TerrainManager")
 
 [node name="CameraSelector" type="Node" parent="." node_paths=PackedStringArray("cameras")]
 script = ExtResource("2_qffo5")
-cameras = [NodePath("../PositionLockCamera"), NodePath("../AutoScrollCamera"), NodePath("../PositionLock+LerpCamera"), NodePath("../PushBoxCamera"), NodePath("../PushBoxCamera2"), NodePath("../PushBoxCamera3")]
+cameras = [NodePath("../PositionLockCamera"), NodePath("../AutoScrollCamera"), NodePath("../PositionLock+LerpCamera"), NodePath("../LerpTargetFocus"), NodePath("../PushBoxCamera"), NodePath("../PushBoxCamera2"), NodePath("../PushBoxCamera3")]
 
 [node name="PositionLockCamera" parent="." node_paths=PackedStringArray("target") instance=ExtResource("3_ttnp6")]
 transform = Transform3D(1, 0, 0, 0, 1.19249e-08, 1, 0, -1, 1.19249e-08, 0, 30, 0)
@@ -80,6 +81,20 @@ leash_distance = 5.0
 target = NodePath("../Vessel")
 
 [node name="debug" type="Label" parent="PositionLock+LerpCamera"]
+visible = false
+offset_right = 40.0
+offset_bottom = 23.0
+script = ExtResource("3_4fllx")
+
+[node name="LerpTargetFocus" parent="." node_paths=PackedStringArray("target") instance=ExtResource("3_ttnp6")]
+transform = Transform3D(1, 0, 0, 0, 1.19249e-08, 1, 0, -1, 1.19249e-08, 0, 30, 0)
+script = ExtResource("8_de8i4")
+follow_speed = 0.05
+catchup_speed = 0.1
+leash_distance = 5.0
+target = NodePath("../Vessel")
+
+[node name="debug" type="Label" parent="LerpTargetFocus"]
 visible = false
 offset_right = 40.0
 offset_bottom = 23.0

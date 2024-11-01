@@ -1,4 +1,4 @@
-class_name PositionLerp
+class_name LerpTargetFocus
 extends CameraControllerBase
 
 @export var follow_speed:float = 0.05
