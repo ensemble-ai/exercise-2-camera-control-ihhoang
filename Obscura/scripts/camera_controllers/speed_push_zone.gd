@@ -1,9 +1,9 @@
 class_name SpeedPushZone
 extends CameraControllerBase
 
-@export var push_ratio:float = 0.5
-@export var pushbox_top_left:Vector2 = Vector2(-6, -4)
-@export var pushbox_bottom_right:Vector2 = Vector2(6, 4)
+@export var push_ratio:float = 0.7
+@export var pushbox_top_left:Vector2 = Vector2(-5, -3)
+@export var pushbox_bottom_right:Vector2 = Vector2(5, 3)
 @export var speedup_zone_top_left:Vector2 = Vector2(-10, -7)
 @export var speedup_zone_bottom_right:Vector2 = Vector2(10, 7)
 
@@ -11,21 +11,20 @@ func _ready() -> void:
 	super()
 	global_position = target.global_position
 	
-
 func _process(delta: float) -> void:
 	if !current:
 		return
 	
 	if draw_camera_logic:
 		draw_logic()
-	
+	print(target.global_position)
 	var cpos = Vector3(global_position.x, 0, global_position.z)					#store camera position without y-axis
 	var tpos = Vector3(target.global_position.x, 0, target.global_position.z)	#store target position without y-axis
 	
-	var push_left = tpos.x < (global_position.x + pushbox_top_left.x)
-	var push_right = tpos.x > (global_position.x + pushbox_bottom_right.x)
-	var push_top = tpos.z < (global_position.z + pushbox_top_left.y)
-	var push_bottom = tpos.z > (global_position.z + pushbox_bottom_right.y)
+	var push_left = tpos.x < (cpos.x + pushbox_top_left.x)
+	var push_right = tpos.x > (cpos.x + pushbox_bottom_right.x)
+	var push_top = tpos.z < (cpos.z + pushbox_top_left.y)
+	var push_bottom = tpos.z > (cpos.z + pushbox_bottom_right.y)
 	var in_pushbox = push_left or push_right or push_top or push_bottom
 	var direction = (tpos - cpos).normalized()
 	
@@ -38,33 +37,36 @@ func _process(delta: float) -> void:
 	#print("top: ", global_position.z + pushbox_top_left.y, "; bottom: ", global_position.z + pushbox_bottom_right.y)
 	#
 	#print(in_pushbox)
-	if in_pushbox:
-		# Calculate camera movement based on player's position relative to pushbox
-		var camera_velocity = Vector3()
-		
-		# Check if the player is touching the edges of the outer pushbox
-		var touching_left = tpos.x < speedup_zone_top_left.x
-		var touching_right = tpos.x > speedup_zone_bottom_right.x
-		var touching_top = tpos.z < speedup_zone_top_left.y
-		var touching_bottom = tpos.z > speedup_zone_bottom_right.y
-		
-		if touching_left or touching_right:
-			print("touchLeft: ", touching_left)
-			print("touchRight: ", touching_right)
-			camera_velocity.x = target.velocity.x
-		if touching_top or touching_bottom:
-			print("touchTop: ", touching_top)
-			print("touchBottom: ", touching_bottom)
-			# Move at player speed in the y-direction if touching top or bottom
-			camera_velocity.z = target.velocity.z
-		
-			# Move at push_ratio in the y-direction if within the push zone vertically
+	
+	if not in_pushbox:
+		return
+	
+	# Calculate camera movement based on player's position relative to pushbox
+	var camera_velocity = Vector3()
+	
+	# Check if the player is touching the edges of the outer pushbox
+	var touching_left = tpos.x < (cpos.x + speedup_zone_top_left.x)
+	var touching_right = tpos.x > (cpos.x + speedup_zone_bottom_right.x)
+	var touching_top = tpos.z < (cpos.z + speedup_zone_top_left.y)
+	var touching_bottom = tpos.z > (cpos.z + speedup_zone_bottom_right.y)
+	
+	if touching_left or touching_right:
+		print("touchLeft: ", touching_left)
+		print("touchRight: ", touching_right)
+		camera_velocity.x = target.BASE_SPEED * direction.x
+	if touching_top or touching_bottom:
+		print("touchTop: ", touching_top)
+		print("touchBottom: ", touching_bottom)
+		camera_velocity.z = target.BASE_SPEED * direction.z
+	if not (touching_left or touching_right or touching_top or touching_bottom) \
+			or (target.velocity == Vector3(0.0, 0.0, 0.0)):
+	# Move at push_ratio in the y-direction if within the push zone vertically
 		print("direction: ", direction)
 		camera_velocity = direction * target.BASE_SPEED * push_ratio
 
-		# Move camera based on the calculated camera velocity
-		print("cvelocity: ", camera_velocity)
-		global_position += camera_velocity * delta
+	# Move camera based on the calculated camera velocity
+	print("cvelocity: ", camera_velocity)
+	global_position += camera_velocity * delta
 	
 	#var tpos = target.global_position
 	#var cpos = global_position
