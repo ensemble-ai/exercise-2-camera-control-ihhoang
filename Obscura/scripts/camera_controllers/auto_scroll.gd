@@ -1,15 +1,17 @@
-class_name PushBox
+class_name AutoScroll
 extends CameraControllerBase
 
 
-@export var box_width:float = 10.0
-@export var box_height:float = 10.0
+#@export var box_width:float = 10.0
+#@export var box_height:float = 10.0
 
+@export var top_left:Vector2 = Vector2(-13, -7)
+@export var bottom_right:Vector2 = Vector2(13, 7)
+@export var autoscroll_speed:Vector2 = Vector2(10, 0)
 
 func _ready() -> void:
 	super()
 	position = target.position
-	
 
 func _process(delta: float) -> void:
 	if !current:
@@ -18,27 +20,27 @@ func _process(delta: float) -> void:
 	if draw_camera_logic:
 		draw_logic()
 	
-	var tpos = target.global_position
-	var cpos = global_position
-	
+	var scroll_speed_X = autoscroll_speed[0]
+	var scroll_speed_Z = autoscroll_speed[1]
+	global_position.x += scroll_speed_X * delta
+	global_position.z += scroll_speed_Z * delta
+		
 	#boundary checks
-	#left
-	var diff_between_left_edges = (tpos.x - target.WIDTH / 2.0) - (cpos.x - box_width / 2.0)
-	print("left_diff: ", diff_between_left_edges)
-	if diff_between_left_edges < 0:
-		global_position.x += diff_between_left_edges
-	#right
-	var diff_between_right_edges = (tpos.x + target.WIDTH / 2.0) - (cpos.x + box_width / 2.0)
-	if diff_between_right_edges > 0:
-		global_position.x += diff_between_right_edges
-	#top
-	var diff_between_top_edges = (tpos.z - target.HEIGHT / 2.0) - (cpos.z - box_height / 2.0)
-	if diff_between_top_edges < 0:
-		global_position.z += diff_between_top_edges
-	#bottom
-	var diff_between_bottom_edges = (tpos.z + target.HEIGHT / 2.0) - (cpos.z + box_height / 2.0)
-	if diff_between_bottom_edges > 0:
-		global_position.z += diff_between_bottom_edges
+	var left_bound = global_position.x + top_left.x
+	var right_bound = global_position.x + bottom_right.x
+	var top_bound = global_position.z + top_left.y
+	var bottom_bound = global_position.z + bottom_right.y
+	
+		
+	if target.global_position.x < left_bound:
+		target.global_position.x = left_bound
+	if target.global_position.x > right_bound:
+		target.global_position.x = right_bound
+		
+	if target.global_position.z < top_bound:
+		target.global_position.z = top_bound
+	if target.global_position.z > bottom_bound:
+		target.global_position.z = bottom_bound	
 		
 	super(delta)
 
@@ -51,10 +53,10 @@ func draw_logic() -> void:
 	mesh_instance.mesh = immediate_mesh
 	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	
-	var left:float = -box_width / 2
-	var right:float = box_width / 2
-	var top:float = -box_height / 2
-	var bottom:float = box_height / 2
+	var left = top_left.x
+	var right = bottom_right.x
+	var top = top_left.y
+	var bottom = bottom_right.y
 	
 	immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINES, material)
 	immediate_mesh.surface_add_vertex(Vector3(right, 0, top))
