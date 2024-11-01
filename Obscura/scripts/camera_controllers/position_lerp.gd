@@ -22,21 +22,23 @@ func _process(delta: float) -> void:
 		speed_mode = catchup_speed
 	
 	#store positions on xz-plane to calculate distance/direction
-	var cpos = Vector3(global_position.x, 0, global_position.z)					#store camera position without y-axis
-	var tpos = Vector3(target.global_position.x, 0, target.global_position.z)	#store target position without y-axis
+	var cpos = Vector3(global_position.x, 0.0, global_position.z)					#store camera position without y-axis
+	var tpos = Vector3(target.global_position.x, 0.0, target.global_position.z)		#store target position without y-axis
 	
 	var distance = cpos.distance_to(tpos)						#calculate distance from target on xz-plane
-	var temp_direction = (tpos - cpos).normalized()					#calculate direction on xz-plane, note: integer -> need float
-	var direction = Vector3(float(temp_direction.x), float(temp_direction.y), float(temp_direction.z))		#transfer new vector of floats
+	var direction = (tpos - cpos).normalized()					#calculate direction on xz-plane
 	
 	#leash constraints or lerp to target
-	if distance > leash_distance:			#if pulling leash, move camera toward target within leash bounds
+	var pull = snapped(distance - leash_distance, .0001)		#round float difference
+	if pull > 0:			#if pulling leash, move camera toward target within leash bounds
 		global_position += direction * (distance - leash_distance)
 	else:
 		global_position = lerp(cpos, tpos, speed_mode)			#if not pulling, return to target using lerp smoothing
-		
-	super(delta)
 
+	#print("distance: ", distance)
+	#print("direction: ", direction)
+	#print("return: ", direction * (distance - leash_distance))
+	super(delta)
 
 func draw_logic() -> void:
 	var cross_length = 5							#length of visual cross, default 5 units
