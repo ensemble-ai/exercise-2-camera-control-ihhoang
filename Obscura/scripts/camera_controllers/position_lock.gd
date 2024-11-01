@@ -3,7 +3,7 @@ extends CameraControllerBase
 
 func _ready() -> void:
 	super()
-	position = target.position
+	global_position = target.global_position
 	
 func _process(delta: float) -> void:
 	if !current:		#if not current camera, return

@@ -1,13 +1,14 @@
 class_name LerpTargetFocus
 extends CameraControllerBase
 
-@export var follow_speed:float = 0.05
+@export var lead_speed:float = 70.0
+@export var catchup_delay_duration:float = 1.0
 @export var catchup_speed:float = 0.1
 @export var leash_distance:float = 5.0
 
 func _ready() -> void:
 	super()
-	position = target.position		#initialize camera position to target position
+	global_position = target.global_position		#initialize camera position to target position
 
 func _process(delta: float) -> void:
 	if !current:						#if not current camera, return
@@ -16,24 +17,20 @@ func _process(delta: float) -> void:
 	if draw_camera_logic:				#visualize camera bounds
 		draw_logic()
 	
-	#determine if follow_speed or catchup_speed based on target idle
-	var speed_mode = follow_speed
-	if target.velocity:						#if target not moving -> set to catchup_speed
-		speed_mode = catchup_speed
 	
-	#store positions on xz-plane to calculate distance/direction
-	var cpos = Vector3(global_position.x, 0, global_position.z)					#store camera position without y-axis
-	var tpos = Vector3(target.global_position.x, 0, target.global_position.z)	#store target position without y-axis
-	
-	var distance = cpos.distance_to(tpos)						#calculate distance from target on xz-plane
-	var direction = (tpos - cpos).normalized()					#calculate direction on xz-plane
-	
-	#leash constraints or lerp to target
-	if distance > leash_distance:			#if pulling leash, move camera toward target within leash bounds
-		global_position += direction * (distance - leash_distance)
-	else:
-		global_position = lerp(cpos, tpos, speed_mode)			#if not pulling, return to target using lerp smoothing
-		
+	##store positions on xz-plane to calculate distance/direction
+	#var cpos = Vector3(global_position.x, 0, global_position.z)					#store camera position without y-axis
+	#var tpos = Vector3(target.global_position.x, 0, target.global_position.z)	#store target position without y-axis
+	#
+	#var distance = cpos.distance_to(tpos)						#calculate distance from target on xz-plane
+	#var direction = (tpos - cpos).normalized()					#calculate direction on xz-plane
+	#
+	##leash constraints or lerp to target
+	#if distance > leash_distance:			#if pulling leash, move camera toward target within leash bounds
+		#global_position += direction * (distance - leash_distance)
+	#else:
+		#global_position = lerp(cpos, tpos, speed_mode)			#if not pulling, return to target using lerp smoothing
+		#
 	super(delta)
 
 

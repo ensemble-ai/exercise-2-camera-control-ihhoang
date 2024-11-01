@@ -7,7 +7,7 @@ extends CameraControllerBase
 
 func _ready() -> void:
 	super()
-	position = target.position		#initialize camera position to target position
+	global_position = target.global_position		#initialize camera position to target position
 
 func _process(delta: float) -> void:
 	if !current:						#if not current camera, return
@@ -26,7 +26,8 @@ func _process(delta: float) -> void:
 	var tpos = Vector3(target.global_position.x, 0, target.global_position.z)	#store target position without y-axis
 	
 	var distance = cpos.distance_to(tpos)						#calculate distance from target on xz-plane
-	var direction = (tpos - cpos).normalized()					#calculate direction on xz-plane
+	var temp_direction = (tpos - cpos).normalized()					#calculate direction on xz-plane, note: integer -> need float
+	var direction = Vector3(float(temp_direction.x), float(temp_direction.y), float(temp_direction.z))		#transfer new vector of floats
 	
 	#leash constraints or lerp to target
 	if distance > leash_distance:			#if pulling leash, move camera toward target within leash bounds
